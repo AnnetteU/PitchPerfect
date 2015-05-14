@@ -17,7 +17,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     
     // Declare constants
     let recordingText = "recording"
-    let pausingText = "pausing"
+    let pausedText = "paused"
     let tapToRecordText = "Tap to record"
     let sequeIdentifier = "stopRecording"
     let recordingFileFormat = "ddMMyyyy-HHmmss"
@@ -138,7 +138,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         audioRecorder.pause()
         pauseButton.enabled = false
         resumeButton.enabled = true
-        recordingInProgress.text = pausingText
+        recordingInProgress.text = pausedText
     }
     
     /*
