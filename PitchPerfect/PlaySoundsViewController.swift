@@ -82,10 +82,7 @@ class PlaySoundsViewController: UIViewController {
     func playAudioWithVariablePitch(pitch: Float){
         
         // Stop audioplayers and reset audioengine
-        audioPlayer.stop()
-        audioPlayerEcho.stop()
-        audioEngine.stop()
-        audioEngine.reset()
+        stopAndResetAudioPlayersAndEngine()
         
         var audioPlayerNode = AVAudioPlayerNode()
         audioEngine.attachNode(audioPlayerNode)
@@ -111,9 +108,11 @@ class PlaySoundsViewController: UIViewController {
         Play back the sound with echo
     */
     func playEcho() {
-        audioPlayer.stop()
-        audioEngine.reset()
-        audioPlayer.currentTime = 0;
+        
+        // stop and reset audio
+        stopAndResetAudioPlayersAndEngine()
+        
+        audioPlayer.currentTime = 0.0;
         audioPlayer.play()
         
         
@@ -131,8 +130,10 @@ class PlaySoundsViewController: UIViewController {
         :param: playbackRate
     */
     func playAudio(playbackRate: Float){
-        audioPlayer.stop()
-        audioPlayerEcho.stop()
+        
+        // stop and reset audio
+        stopAndResetAudioPlayersAndEngine()
+        
         audioPlayer.rate = playbackRate
         audioPlayer.currentTime = 0.0
         audioPlayer.prepareToPlay()
@@ -143,8 +144,17 @@ class PlaySoundsViewController: UIViewController {
         Stop audio playback
     */
     @IBAction func stopAudioPlayback(sender: UIButton) {
+        stopAndResetAudioPlayersAndEngine()
+    }
+    
+    /*
+        Stop audio players and stop and reset audio engine
+    */
+    func stopAndResetAudioPlayersAndEngine(){
         audioPlayer.stop()
         audioPlayerEcho.stop()
+        audioEngine.stop()
+        audioEngine.reset()
     }
     
 
