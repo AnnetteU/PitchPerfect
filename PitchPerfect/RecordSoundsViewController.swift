@@ -146,7 +146,10 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         Resume recording. This is called when user presses the pause button
     */
     @IBAction func resumeRecording(sender: UIButton) {
+        
+        // resume recording
         audioRecorder.record()
+        
         resumeButton.enabled = false
         stopButton.enabled = true
         pauseButton.enabled = true
