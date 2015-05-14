@@ -32,28 +32,28 @@ class PlaySoundsViewController: UIViewController {
         audioFile = AVAudioFile(forReading: receivedAudio.filePathUrl, error: nil)
     }
 
-    /**
+    /*
         didReceiveMemoryWarning
     */
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
     
-    /**
+    /*
         Play back recorded audio at half speed
     */
     @IBAction func playSoundSlow(sender: UIButton) {
         playAudio(0.5)
     }
     
-    /**
+    /*
         Play back recorded audio at twice the speed
     */
     @IBAction func playAudioFast(sender: UIButton) {
         playAudio(2.0)
     }
     
-    /**
+    /*
         Play back recorded audio with increased pitch
         making it sound like a chipmunk
     */
@@ -61,21 +61,21 @@ class PlaySoundsViewController: UIViewController {
         playAudioWithVariablePitch(1000)
     }
     
-    /**
+    /*
         Play back recorded audio reduced pitch making it sound like Darth Vader
     */
     @IBAction func playDarthVaderAudio(sender: UIButton) {
         playAudioWithVariablePitch(-1000)
     }
     
-    /**
+    /*
         Play back recorded audio with echo
     */
     @IBAction func playEchoAudio(sender: UIButton) {
         playEcho()
     }
     
-    /**
+    /*
         Play back recorded audio at pitch set by parameter
         :param: pitch
     */
@@ -126,7 +126,7 @@ class PlaySoundsViewController: UIViewController {
         audioPlayerEcho.playAtTime(playtime)
     }
     
-    /**
+    /*
         Play back recorded audio at rate set by parameter
         :param: playbackRate
     */
@@ -139,7 +139,7 @@ class PlaySoundsViewController: UIViewController {
         audioPlayer.play()
     }
     
-    /**
+    /*
         Stop audio playback
     */
     @IBAction func stopAudioPlayback(sender: UIButton) {
