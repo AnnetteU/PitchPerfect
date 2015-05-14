@@ -13,6 +13,8 @@ import AVFoundation
 class PlaySoundsViewController: UIViewController {
     
     var audioPlayer = AVAudioPlayer()
+    var audioPlayerEcho = AVAudioPlayer()
+    
     var receivedAudio:RecordedAudio!
     
     var audioEngine:AVAudioEngine!
@@ -21,13 +23,18 @@ class PlaySoundsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Initialise main audio player and audio player for echo effect
         audioPlayer = AVAudioPlayer(contentsOfURL: receivedAudio.filePathUrl, error: nil)
-        audioPlayer.enableRate = true;
+        audioPlayerEcho = AVAudioPlayer(contentsOfURL: receivedAudio.filePathUrl, error: nil)
         
+        audioPlayer.enableRate = true;        
         audioEngine = AVAudioEngine()
         audioFile = AVAudioFile(forReading: receivedAudio.filePathUrl, error: nil)
     }
 
+    /**
+        didReceiveMemoryWarning
+    */
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
@@ -62,28 +69,61 @@ class PlaySoundsViewController: UIViewController {
     }
     
     /**
+        Play back recorded audio with echo
+    */
+    @IBAction func playEchoAudio(sender: UIButton) {
+        playEcho()
+    }
+    
+    /**
         Play back recorded audio at pitch set by parameter
         :param: pitch
     */
     func playAudioWithVariablePitch(pitch: Float){
+        
+        // Stop audioplayers and reset audioengine
         audioPlayer.stop()
+        audioPlayerEcho.stop()
         audioEngine.stop()
         audioEngine.reset()
         
         var audioPlayerNode = AVAudioPlayerNode()
         audioEngine.attachNode(audioPlayerNode)
         
+        // Add pitch effect
         var changePitchEffect = AVAudioUnitTimePitch()
         changePitchEffect.pitch = pitch
         audioEngine.attachNode(changePitchEffect)
         
+        // Connect audio nodes
         audioEngine.connect(audioPlayerNode, to: changePitchEffect, format: nil)
         audioEngine.connect(changePitchEffect, to: audioEngine.outputNode, format: nil)
         
+        // Schedule file to play
         audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
         audioEngine.startAndReturnError(nil)
         
+        // Play audio file
         audioPlayerNode.play()
+    }
+    
+    /*
+        Play back the sound with echo
+    */
+    func playEcho() {
+        audioPlayer.stop()
+        audioEngine.reset()
+        audioPlayer.currentTime = 0;
+        audioPlayer.play()
+        
+        
+        let delay:NSTimeInterval = 0.1 // 100ms
+        var playtime:NSTimeInterval
+        playtime = audioPlayerEcho.deviceCurrentTime + delay
+        audioPlayerEcho.stop()
+        audioPlayerEcho.currentTime = 0
+        audioPlayerEcho.volume = 0.8;
+        audioPlayerEcho.playAtTime(playtime)
     }
     
     /**
@@ -92,6 +132,7 @@ class PlaySoundsViewController: UIViewController {
     */
     func playAudio(playbackRate: Float){
         audioPlayer.stop()
+        audioPlayerEcho.stop()
         audioPlayer.rate = playbackRate
         audioPlayer.currentTime = 0.0
         audioPlayer.prepareToPlay()
@@ -103,6 +144,7 @@ class PlaySoundsViewController: UIViewController {
     */
     @IBAction func stopAudioPlayback(sender: UIButton) {
         audioPlayer.stop()
+        audioPlayerEcho.stop()
     }
     
 

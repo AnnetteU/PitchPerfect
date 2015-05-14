@@ -11,11 +11,11 @@ import AVFoundation
 
 class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     
-    //Declare global variables
+    // Declare global variables
     var audioRecorder:AVAudioRecorder!
     var recordedAudio:RecordedAudio!
     
-    // Constants
+    // Declare constants
     let recordingText = "recording"
     let tapToRecordText = "Tap to record"
     let sequeIdentifier = "stopRecording"
@@ -25,18 +25,34 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     @IBOutlet weak var recordingInProgress: UILabel!
     @IBOutlet weak var stopButton: UIButton!
     @IBOutlet weak var recordButton: UIButton!
+    @IBOutlet weak var pauseButton: UIButton!
+    @IBOutlet weak var resumeButton: UIButton!
     
+    /**
+        viewDidLoad
+    */
     override func viewDidLoad() {
         super.viewDidLoad()
     }
 
+    /**
+        didReceiveMemoryWarning
+    */
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
     
+    /**
+        viewWillAppear
+        Set recordButton to enabled
+        Set stopButton, pauseButton and resumeButton to disabled
+        Set text below record button to "Tap to record"
+    */
     override func viewWillAppear(animated: Bool) {
         recordButton.enabled = true
-        stopButton.hidden = true;
+        stopButton.enabled = false
+        pauseButton.enabled = false
+        resumeButton.enabled = false
         recordingInProgress.text = tapToRecordText
     }
 
@@ -49,14 +65,16 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         
         // Set flags
         recordButton.enabled = false;
-        stopButton.hidden = false;
+        stopButton.enabled = true
+        pauseButton.enabled = true;
         recordingInProgress.text = recordingText
         
-        // create audiosession and set category
+        // Create audiosession and set category to only record
+        // Setting is to play and record makes the volume affected
         var session = AVAudioSession.sharedInstance()
-        session.setCategory(AVAudioSessionCategoryPlayAndRecord, error: nil)
+        session.setCategory(AVAudioSessionCategoryRecord, error: nil)
         
-        // create audiorecorder and record
+        // Create audiorecorder and record
         audioRecorder = AVAudioRecorder(URL: createRecordingFileName(), settings: nil, error: nil)
         audioRecorder.delegate = self
         audioRecorder.meteringEnabled = true
@@ -65,7 +83,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     
     /**
         Create filename for recording from current date and time
-        and saves in users document directory
+        and return filename as NSURL
     */
     func createRecordingFileName() -> NSURL{
     
@@ -116,13 +134,40 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     }
     
     /**
+        Pause recording. This is called when user presses the pause button
+    */
+    @IBAction func pauseRecording(sender: UIButton) {
+        audioRecorder.pause()
+        pauseButton.enabled = false
+        resumeButton.enabled = true
+    }
+    
+    /**
+        Resume recording. This is called when user presses the pause button
+    */
+    @IBAction func resumeRecording(sender: UIButton) {
+        audioRecorder.record()
+        resumeButton.enabled = false
+        stopButton.enabled = true
+        pauseButton.enabled = true
+    }
+    
+    /**
         Stop recording. This is called when user presses the stop button
     */
     @IBAction func stopRecording(sender: UIButton) {
-        recordingInProgress.text = tapToRecordText
-        
         audioRecorder.stop()
+        
+        // set stop, pause and  and stop button to disabled
+        stopButton.enabled = false
+        pauseButton.enabled = false
+        resumeButton.enabled = false
+        
+        recordingInProgress.text = tapToRecordText
         var audioSession = AVAudioSession.sharedInstance()
+        
+        // Set category to only playback, otherwise the volume is affected (becomes too low)
+        audioSession.setCategory(AVAudioSessionCategoryPlayback, error: nil)
         audioSession.setActive(false, error: nil)
         
     }
