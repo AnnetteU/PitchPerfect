@@ -13,7 +13,6 @@ import AVFoundation
 class PlaySoundsViewController: UIViewController {
     
     var audioPlayer = AVAudioPlayer()
-    var audioPlayerEcho = AVAudioPlayer()
     
     var receivedAudio:RecordedAudio!
     
@@ -25,8 +24,6 @@ class PlaySoundsViewController: UIViewController {
 
         // Initialise main audio player and audio player for echo effect
         audioPlayer = AVAudioPlayer(contentsOfURL: receivedAudio.filePathUrl, error: nil)
-        audioPlayerEcho = AVAudioPlayer(contentsOfURL: receivedAudio.filePathUrl, error: nil)
-        
         audioPlayer.enableRate = true;        
         audioEngine = AVAudioEngine()
         audioFile = AVAudioFile(forReading: receivedAudio.filePathUrl, error: nil)
@@ -112,17 +109,27 @@ class PlaySoundsViewController: UIViewController {
         // stop and reset audio
         stopAndResetAudioPlayersAndEngine()
         
-        audioPlayer.currentTime = 0.0;
-        audioPlayer.play()
+        // add echo node and set delaytime
+        var echoNode = AVAudioUnitDelay()
+        echoNode.delayTime = NSTimeInterval(0.3)
         
+        // add audio player node for echo
+        var audioPlayerNode = AVAudioPlayerNode()
+        audioEngine.attachNode(audioPlayerNode)
         
-        let delay:NSTimeInterval = 0.1 // 100ms
-        var playtime:NSTimeInterval
-        playtime = audioPlayerEcho.deviceCurrentTime + delay
-        audioPlayerEcho.stop()
-        audioPlayerEcho.currentTime = 0
-        audioPlayerEcho.volume = 0.8;
-        audioPlayerEcho.playAtTime(playtime)
+        // Attach the audio effect node corresponding to the user selected effect
+        audioEngine.attachNode(echoNode)
+        
+        // Connect Player --> AudioEffect
+        audioEngine.connect(audioPlayerNode, to: echoNode, format: audioFile.processingFormat)
+        
+        // Connect AudioEffect --> Output
+        audioEngine.connect(echoNode, to: audioEngine.outputNode, format: audioFile.processingFormat)
+        
+        // Schedule and play file
+        audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler:nil)
+        audioEngine.startAndReturnError(nil)
+        audioPlayerNode.play()
     }
     
     /*
@@ -152,7 +159,6 @@ class PlaySoundsViewController: UIViewController {
     */
     func stopAndResetAudioPlayersAndEngine(){
         audioPlayer.stop()
-        audioPlayerEcho.stop()
         audioEngine.stop()
         audioEngine.reset()
     }
